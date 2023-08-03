@@ -4,9 +4,14 @@ import { NestExpressApplication } from "@nestjs/platform-express/interfaces";
 import helmet from 'helmet';
 import mongoose from 'mongoose';
 
+import { resolve } from "path";
+import { config } from "dotenv";
+
+config({ path: resolve(__dirname, "../.env") });
+
 function setMongoConfig() {
   mongoose.Promise = global.Promise;
-  mongoose.connect('mongodb+srv://hylia:HyliaNote2023@cluster0.yxlgdrq.mongodb.net/?retryWrites=true&w=majority', {}).then(v => {
+  mongoose.connect(process.env.BD!, {}).then(v => {
     console.log('bd connected')
   }).catch((reason: any) => {
     console.log(reason.message)

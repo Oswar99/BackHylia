@@ -7,6 +7,7 @@ export interface IUser extends mongoose.Document{
     pass: string,
     type: string,
     enabled: boolean,
+    img: string,
     joinTime: Date,
     lastSession: Date,
 };
@@ -17,6 +18,7 @@ const UserSchema = new mongoose.Schema({
     phoneNumber: {type:String, required: false},
     pass: {type:String, required: true},
     type: {type:String, required: false},
+    img: {type:String, required: false},
     enabled: {type: Boolean, default: true},
     joinTime: {type:Date, default: new Date()},
     lastSession: {type:Date, default: new Date()},
