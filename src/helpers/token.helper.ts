@@ -8,7 +8,7 @@ class TokenHelper{
         return new Promise<any>(async (resolve)=>{
             try {
                 const dtoken = await decodeResp(tk);
-                const user = await User.findById(dtoken.user,{_id:1, enabled:1, type:1, name:1});
+                const user = await User.findById(dtoken.user,{_id:1, enabled:1, type:1, name:1, img: 1, email:1, nickname:1});
                 const end = new Date(dtoken.end).getTime();
                 const now = new Date().getTime();
     
