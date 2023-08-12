@@ -9,7 +9,7 @@ class UserService extends TokenHelper{
         const body:any = req.body;
         const user =  await User.findOne({
             "$or": [{email: body.email}, {nickname:body.email}],
-            pass: body.pass,
+            pass: encodeResp(body.pass),
             enabled: 1
         }, {_id:1, email:1, type:1, name: 1, img:1, nickname: 1, enabled: 1})
         if(user){
@@ -26,7 +26,7 @@ class UserService extends TokenHelper{
     };
 
     public async addUser(req:Request, res:Response){
-        const data = req.body.data;
+        const data = req.body;
         const newuser:IUser = new User({
             ...data,
             joinTime: new Date(),

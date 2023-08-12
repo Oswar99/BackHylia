@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 export interface IUser extends mongoose.Document{
     name: string,
+    lastname: string,
     nickname: string,
     email: string,
     phoneNumber: string,
@@ -15,6 +16,7 @@ export interface IUser extends mongoose.Document{
 
 const UserSchema = new mongoose.Schema({
     name: {type:String, required: true},
+    lastname: {type:String, required: true},
     nickname: {type:String, required: false, unique:true},
     email: {type:String, required: true, unique: true},
     phoneNumber: {type:String, required: false},

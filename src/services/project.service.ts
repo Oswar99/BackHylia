@@ -33,7 +33,7 @@ class ProjectService {
     public async getProjectById(req: Request, res: Response) {
         try {
             const project: IProject = await Project.findOne({ user: req.body.user._id, _id: req.params.id.replace("\n", "") }, { user: 0 });
-            res.status(200).json({ successed: true, project: project });
+            res.status(200).json({ successed: project? true:false, project: project });
         } catch (error) {
             res.status(200).json({ successed: false })
         }
