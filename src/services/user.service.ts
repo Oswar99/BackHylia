@@ -3,6 +3,7 @@ import TokenHelper from "../helpers/token.helper";
 import { IUser, User } from "../models/user.model";
 import {Request, Response} from "express";
 import { encodeResp } from "src/helpers/helpers";
+import { IProject, Project } from "src/models/project.model";
 
 class UserService extends TokenHelper{
     public async login(req: Request,res:Response){
@@ -38,13 +39,17 @@ class UserService extends TokenHelper{
         });
     };
 
-    //{nickname:{ "$regex": params.search? params.search: "", "$options": "i" }},
+    //{nickname:{ },
     public async findUser(req:Request, res:Response){
         const params = req.query;
-        const users:IUser = await User.findOne({"$or":[
-            {nickname: params.search},
-            {email: params.search}
-        ]});
+        const users:IUser[] = await User.find({
+            _id: {"$ne": req.body.user._id},
+            "$or":[
+                {nickname: {"$regex": params.search? params.search: "", "$options": "i" }},
+                {email: params.search}
+            ],
+            enabled: true,
+            }, {_id:1, name: 1, lastname: 1, email: 1, nickname:1, img: 1});
         res.status(200).json({successed:true, users: users});
     };
 
@@ -59,6 +64,27 @@ class UserService extends TokenHelper{
             res.status(200).json({successed:true, message: "Se agrego a su lista de seguidos"})
         });
     };
+
+    public async unfollowUser(req:Request, res:Response){
+        const id: string = req.body.id;
+        Follow.findOneAndDelete({user: req.body.user._id, followed:id}).then(()=>{
+            res.status(200).json({successed:true})
+        });
+    };
+
+
+    public async getFollowedUsers(req:Request, res:Response){
+        const followed: IFollow[] = await Follow.find({user: req.body.user._id});
+        res.status(200).json({successed:true, list: followed})
+    }
+
+    public async getUserById(req:Request, res:Response){
+        const id: string = req.params.id;
+        const followdata:IFollow[] = await Follow.find({followed:id, user: req.body.user._id});
+        const projects: IProject[] = await Project.find({user:id, public:true});
+        const user:IUser = await User.findOne({_id: id, enabled:true}, {enabled:0, pass:0});
+        res.status(200).json({successed:true, user: user, followed: followdata.length > 0, projects: projects});
+    }
 
 };
 

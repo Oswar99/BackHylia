@@ -1,7 +1,9 @@
 import { Request, Response } from "express";
 import * as moment from "moment";
 import mongoose from "mongoose";
+import { checkShare } from "src/helpers/users.helper";
 import { IProject, Project } from "src/models/project.model";
+import { IShare, Share } from "src/models/shared-list.model";
 
 class ProjectService {
 
@@ -23,7 +25,15 @@ class ProjectService {
 
     public async getProjectsByUser(req: Request, res: Response) {
         try {
-            const projects: IProject[] = await Project.find({ user: req.body.user._id }, { html: 0, js: 0, css: 0, user: 0, created_at: 0, last_modified: 0 });
+            const type = req.query.type;
+            const pub = (type === "PUBLIC")? true: false;
+            const filter = {
+               "$and": [
+                    { user: req.body.user._id },
+                    type? {public: pub}: {}
+                ]
+            }
+            const projects: IProject[] = await Project.find(filter, { html: 0, js: 0, css: 0, user: 0, created_at: 0, last_modified: 0 });
             res.status(200).json({ successed: true, projects: projects })
         } catch (error) {
             res.status(200).json({ successed: false, message: "Internal Server Error" })
@@ -32,8 +42,8 @@ class ProjectService {
 
     public async getProjectById(req: Request, res: Response) {
         try {
-            const project: IProject = await Project.findOne({ user: req.body.user._id, _id: req.params.id.replace("\n", "") }, { user: 0 });
-            res.status(200).json({ successed: project? true:false, project: project });
+            const project: IProject = await Project.findOne({ "$or":[{user: req.body.user._id}, {public:true}], _id: req.params.id.replace("\n", "") });
+            res.status(200).json({ successed: project? true:false, project: project, editable: project.user._id.toString() === req.body.user._id.toString() });
         } catch (error) {
             res.status(200).json({ successed: false })
         }
@@ -57,6 +67,28 @@ class ProjectService {
         }
     };
 
+    public async shareWith(req:Request, res:Response){
+        try {
+            const body = req.body;
+            const filter = {
+                project: body.project,
+                shared_with: body.id
+            };
+            const check: boolean = await checkShare(filter);
+            if(!check){
+                const newShare: IShare = new Share(filter);
+                Project.findByIdAndUpdate(body.project, {shared: true});
+                newShare.save().then(()=>{
+                    res.status(200).json({successed:true, message: "El proyecto ha sido compartido!"});
+                });
+            }else{
+                res.status(200).json({successed:false, message: "Ya se ha compartido el proyecto con este usuario!"})
+            };
+        } catch (error) {
+            res.status(200).json({successed:false, message:"Ha ocurrido un error!"})
+        }
+    }
+ 
 };
 
 export default ProjectService;

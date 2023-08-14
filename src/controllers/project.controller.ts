@@ -29,5 +29,9 @@ export class ProjectController{
         return new Promise<any>((resolve)=>{
             resolve(this.projectService.updateProjectById(req, res));
         })
-    }
+    };
+    @Post("share")
+    shareWith(@Req() req:Request, @Res() res:Response){
+        return this.projectService.shareWith(req, res);
+    };
 };
