@@ -8,13 +8,18 @@ class TokenHelper{
         return new Promise<any>(async (resolve)=>{
             try {
                 const dtoken = await decodeResp(tk);
-                const user = await User.findById(dtoken.user,{_id:1, enabled:1, type:1, name:1, img: 1, email:1, nickname:1});
+                const user: IUser|any = await User.findById(dtoken.user,{_id:1, email:1, type:1, name: 1, img:1, nickname: 1, enabled: 1, lastname:1, joinTime:1, lastSession:1});
                 const end = new Date(dtoken.end).getTime();
                 const now = new Date().getTime();
     
                 if(user!.enabled && now < end){
-                    User.findByIdAndUpdate(dtoken.user, {lastSession: new Date()})
-                    resolve({status: true, user: user})
+                    await User.findByIdAndUpdate(dtoken.user, {lastSession: new Date()})
+                    const us:any = {
+                        ...user._doc,
+                        joinTime: moment(user.joinTime).format("LLL"), 
+                        lastSession: moment(user.lastSession).format("LLL")
+                    };
+                    resolve({status: true, user: us})
                 }else{
                     resolve({status: false, message:"El token no es valido!"})
                 };

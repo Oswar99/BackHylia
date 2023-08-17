@@ -12,7 +12,7 @@ class UserService extends TokenHelper{
             "$or": [{email: body.email}, {nickname:body.email}],
             pass: encodeResp(body.pass),
             enabled: 1
-        }, {_id:1, email:1, type:1, name: 1, img:1, nickname: 1, enabled: 1})
+        }, {_id:1, email:1, type:1, name: 1, img:1, nickname: 1, enabled: 1, lastname:1, joinTime:1, lastSession:1})
         if(user){
             const utk = await super.generateToken(user);
             res.status(200).json({token: utk, user: user})
@@ -30,6 +30,8 @@ class UserService extends TokenHelper{
         const data = req.body;
         const newuser:IUser = new User({
             ...data,
+            name: data.name.toUpperCase(),
+            lastname: data.lastname.toUpperCase(),
             joinTime: new Date(),
             lastSession: new Date(),
             pass: encodeResp(data.pass)
@@ -74,8 +76,35 @@ class UserService extends TokenHelper{
 
 
     public async getFollowedUsers(req:Request, res:Response){
-        const followed: IFollow[] = await Follow.find({user: req.body.user._id});
-        res.status(200).json({successed:true, list: followed})
+        try {
+            const followed = await Follow.aggregate([
+                
+                {
+                    "$lookup":{
+                        from: "users",
+                        localField:"followed",
+                        foreignField:"_id",
+                        as:"users"
+                    }
+                },
+                {"$match":{user:req.body.user._id}},
+                {
+                    "$project":{
+                    _id:1,
+                    user: 1,
+                    users:{
+                        _id:1,
+                        name: 1,
+                        lastname: 1,
+                        nickname: 1,
+                        img: 1
+                    }
+                }}
+            ]);
+            res.status(200).json({successed:true, list: followed})
+        } catch (error) {
+            res.status(200).json({successed:false, message:error.message})
+        }
     }
 
     public async getUserById(req:Request, res:Response){

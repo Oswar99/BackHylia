@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Put, Req, Res } from "@nestjs/common";
+import { Controller, Get, Param, Post, Put, Delete, Req, Res } from "@nestjs/common";
 import {Response, Request} from "express";
 import ProjectService from "src/services/project.service";
 
@@ -33,5 +33,20 @@ export class ProjectController{
     @Post("share")
     shareWith(@Req() req:Request, @Res() res:Response){
         return this.projectService.shareWith(req, res);
+    };
+
+    @Get("share")
+    getShares(@Req() req:Request, @Res() res:Response){
+        return this.projectService.getShares(req, res);
+    }; 
+
+    @Get("v2/share")
+    getSharesByUser(@Req() req:Request, @Res() res:Response){
+        return this.projectService.getShareByUser(req, res);
+    };
+
+    @Delete("share")
+    deleteShare(@Req() req:Request, @Res() res:Response){
+        return this.projectService.deleteShare(req, res);
     };
 };
