@@ -26,6 +26,13 @@ export class USerController{
         })
     };
 
+    @Put('users')
+    updateUser(@Req() req:Request, @Res() res:Response):Promise<void>{
+        return new Promise<void>((resolve)=>{
+            resolve(this.userService.updateUser(req, res))
+        })
+    };
+
     @Get('users')
     findUser(@Req() req:Request, @Res() res:Response):Promise<any>{
         return new Promise<any>((resolve)=>{

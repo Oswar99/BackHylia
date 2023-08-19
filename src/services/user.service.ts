@@ -41,6 +41,37 @@ class UserService extends TokenHelper{
         });
     };
 
+    public async updateUser(req:Request, res:Response){
+        try {
+            
+            const body = req.body;
+            const data = body.data;
+    
+            var dte:any
+            
+            if(data.pass){
+                dte = {
+                    ...data,
+                    name: data.name.toUpperCase(),
+                    lastname: data.lastname.toUpperCase(),
+                    pass: encodeResp(data.pass)
+                };
+            }else{
+                dte = {
+                    img: data.img, 
+                    name: data.name.toUpperCase(),
+                    lastname: data.lastname.toUpperCase(),
+                };
+            };
+    
+            User.findByIdAndUpdate(body.user._id, dte).then(()=>{
+                res.status(200).json({successed:true})
+            });
+        } catch (error) {
+            res.status(200).json({successed:false})
+        }
+    };
+
     //{nickname:{ },
     public async findUser(req:Request, res:Response){
         const params = req.query;

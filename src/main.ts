@@ -6,6 +6,7 @@ import mongoose from 'mongoose';
 
 import { resolve } from "path";
 import { config } from "dotenv";
+import { json, urlencoded } from 'express';
 
 config({ path: resolve(__dirname, "../.env") });
 
@@ -20,8 +21,12 @@ function setMongoConfig() {
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.use(json({ limit: '50mb' }));
+  app.use(urlencoded({ extended: true, limit: '50mb' }));
   app.enableCors();
-  app.use(helmet());
+  app.use(helmet({
+    crossOriginResourcePolicy: false,
+  }));
   setMongoConfig();
   await app.listen(3000);
 }

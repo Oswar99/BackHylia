@@ -34,8 +34,21 @@ class ProjectService {
                     type ? { public: pub } : {}
                 ]
             }
-            const projects: IProject[] = await Project.find(filter, { html: 0, js: 0, css: 0, user: 0, created_at: 0, last_modified: 0 });
+            const projects: IProject[] = await Project.find(filter, { html: 0, js: 0, css: 0, user: 0, created_at: 0, last_modified: 0 }).sort({carpet:-1, last_modified:-1});
             res.status(200).json({ successed: true, projects: projects })
+        } catch (error) {
+            res.status(200).json({ successed: false, message: "Internal Server Error" })
+        }
+    }
+
+    public async getProjectsByFather(req: Request, res: Response) {
+        try {
+            const ex = { html: 0, js: 0, css: 0, user: 0, created_at: 0 };
+            const father = req.query.father.toString();
+            const fdata:IProject|undefined = father!=="root"? await Project.findById(father, ex):undefined;
+            const filter = { user: req.body.user._id, father: father? father: "root" }
+            const projects: IProject[] = await Project.find(filter, ex).sort({carpet:-1, last_modified:-1});
+            res.status(200).json({ successed: true, projects: projects, father: fdata })
         } catch (error) {
             res.status(200).json({ successed: false, message: "Internal Server Error" })
         }
@@ -166,7 +179,10 @@ class ProjectService {
                         title: 1,
                         created_at_str: 1,
                         last_modified_str: 1,
-                        user: 1
+                        user: 1,
+                        carpet: 1,
+                        public: 1,
+                        last_modified: 1
                     }
                 }
             }

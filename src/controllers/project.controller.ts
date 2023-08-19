@@ -13,11 +13,19 @@ export class ProjectController{
         });
     };
     @Get(['project'])
-    verifyTk(@Req() req:Request, @Res() res:Response):Promise<any>{
+    projectByUser(@Req() req:Request, @Res() res:Response):Promise<any>{
         return new Promise<any>((resolve)=>{
             resolve(this.projectService.getProjectsByUser(req, res));
         })
     }
+
+    @Get(['v2/project'])
+    projectByFather(@Req() req:Request, @Res() res:Response):Promise<any>{
+        return new Promise<any>((resolve)=>{
+            resolve(this.projectService.getProjectsByFather(req, res));
+        })
+    };
+
     @Get(['project/:id'])
     getProjectByID(@Req() req:Request, @Res() res:Response):Promise<any>{
         return new Promise<any>((resolve)=>{

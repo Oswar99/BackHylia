@@ -12,7 +12,9 @@ export interface IProject extends mongoose.Document{
     js: string,
     public: boolean,
     shared: boolean,
-    user: IUser
+    user: IUser,
+    father: string,
+    carpet: boolean,
 };
 
 const ProjectSchema = new mongoose.Schema({
@@ -27,6 +29,8 @@ const ProjectSchema = new mongoose.Schema({
     public: {type:Boolean, default:false},
     shared: {type:Boolean, default: false},
     user: {type: mongoose.Schema.Types.ObjectId, ref: "User"},
+    father: {type: String, default:"root"},
+    carpet: {type: Boolean, default: false}
 });
 
 export const Project = mongoose.model<IProject>("Project", ProjectSchema);
