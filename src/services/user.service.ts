@@ -137,13 +137,16 @@ class UserService extends TokenHelper{
             res.status(200).json({successed:false, message:error.message})
         }
     }
-
+//editar
     public async getUserById(req:Request, res:Response){
         const id: string = req.params.id;
         const followdata:IFollow[] = await Follow.find({followed:id, user: req.body.user._id});
-        const projects: IProject[] = await Project.find({user:id, public:true});
+
+        const projects: IProject[] = await Project.find({user:id, public:true}).sort({carpet:-1, created_at: -1});
+        const psf = projects.filter(ps => { return projects.filter(e => { return e._id.toString() === ps.father.toString() }).length === 0 });
+
         const user:IUser = await User.findOne({_id: id, enabled:true}, {enabled:0, pass:0});
-        res.status(200).json({successed:true, user: user, followed: followdata.length > 0, projects: projects});
+        res.status(200).json({successed:true, user: user, followed: followdata.length > 0, projects: psf});
     }
 
 };
