@@ -38,6 +38,14 @@ export class ProjectController{
             resolve(this.projectService.updateProjectById(req, res));
         })
     };
+    
+    @Delete(['project/:id'])
+    deleteProjectById(@Req() req:Request, @Res() res:Response):Promise<any>{
+        return new Promise<any>((resolve)=>{
+            resolve(this.projectService.deleteProject(req, res));
+        })
+    };
+
     @Post("share")
     shareWith(@Req() req:Request, @Res() res:Response){
         return this.projectService.shareWith(req, res);
@@ -57,4 +65,5 @@ export class ProjectController{
     deleteShare(@Req() req:Request, @Res() res:Response){
         return this.projectService.deleteShare(req, res);
     };
+
 };
