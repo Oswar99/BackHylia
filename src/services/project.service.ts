@@ -13,39 +13,49 @@ class ProjectService extends ProjectHelper {
 
     public async newProject(req: Request, res: Response) {
         try {
-            const father = req.body.father;
-            const sh: shareHelper = new shareHelper();
+            const limits = [{plan: "GRATUITO", limit:1},{plan: "ESTANDAR", limit:5},{plan: "PROFESIONAL", limit:1000000}];
+            const utype = req.body.user.type;
+            const limit = limits.filter(r=>{return r.plan === utype})[0].limit;
+    
+            const pcount = await Project.countDocuments({user: req.body.user});
 
-            const pj: IProject | null = (father !== 'root')? await Project.findById(father):null;
-
-            const body = {
-                ...req.body,
-                title: req.body.title.toUpperCase(),
-                created_at: new Date(),
-                created_at_str: moment().format("DD-MM-yyyy LTS"),
-                last_modified: new Date(),
-                last_modified_str: moment().format("DD-MM-yyyy LTS")
+            if(pcount < limit){
+                const father = req.body.father;
+                const sh: shareHelper = new shareHelper();
+    
+                const pj: IProject | null = (father !== 'root')? await Project.findById(father):null;
+    
+                const body = {
+                    ...req.body,
+                    title: req.body.title.toUpperCase(),
+                    created_at: new Date(),
+                    created_at_str: moment().format("DD-MM-yyyy LTS"),
+                    last_modified: new Date(),
+                    last_modified_str: moment().format("DD-MM-yyyy LTS")
+                }
+    
+                const project: IProject = new Project(body);
+    
+                const plog: IProjectLog = new ProjectLog({
+                    ...body,
+                    created_by: req.body.user,
+                    project: project._id
+                });
+    
+                if (pj && pj.user._id.toString() !== req.body.user._id.toString()) {
+                    await sh.shareWithUser(pj.user._id, [project._id])
+                };
+    
+                await plog.save();
+    
+                project.save().then(() => {
+                    res.status(200).json({ successed: true })
+                }).catch(() => {
+                    res.status(200).json({ successed: false });
+                })
+            }else{
+                res.status(200).json({ successed: false, message: "Ya ha llegado a su limite de proyectos, actualice su plan si desea agregar mas." });   
             }
-
-            const project: IProject = new Project(body);
-
-            const plog: IProjectLog = new ProjectLog({
-                ...body,
-                created_by: req.body.user,
-                project: project._id
-            });
-
-            if (pj && pj.user._id.toString() !== req.body.user._id.toString()) {
-                await sh.shareWithUser(pj.user._id, [project._id])
-            };
-
-            await plog.save();
-
-            project.save().then(() => {
-                res.status(200).json({ successed: true })
-            }).catch(() => {
-                res.status(200).json({ successed: false });
-            })
 
         } catch (error) {
             console.log(error.message)

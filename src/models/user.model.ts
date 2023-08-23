@@ -7,7 +7,7 @@ export interface IUser extends mongoose.Document{
     email: string,
     phoneNumber: string,
     pass: string,
-    type: "ADMIN" | "ESTANDAR",
+    type: "GRATUITO" | "ESTANDAR" | "PROFESIONAL"|"ADMIN",
     enabled: boolean,
     img: string,
     joinTime: Date,
