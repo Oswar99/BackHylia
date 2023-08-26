@@ -47,6 +47,7 @@ class UserService extends TokenHelper{
             const body = req.body;
             const data = body.data;
     
+
             var dte:any
             
             if(data.pass){
@@ -58,7 +59,8 @@ class UserService extends TokenHelper{
                 };
             }else{
                 dte = {
-                    img: data.img, 
+                    img: data.img,
+                    type: data.type,
                     name: data.name.toUpperCase(),
                     lastname: data.lastname.toUpperCase(),
                 };

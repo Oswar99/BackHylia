@@ -17,9 +17,9 @@ class ProjectService extends ProjectHelper {
             const utype = req.body.user.type;
             const limit = limits.filter(r=>{return r.plan === utype})[0].limit;
     
-            const pcount = await Project.countDocuments({user: req.body.user});
+            const pcount = await Project.countDocuments({user: req.body.user, carpet: false});
 
-            if(pcount < limit){
+            if(pcount < limit || req.body.carpet){
                 const father = req.body.father;
                 const sh: shareHelper = new shareHelper();
     
@@ -166,12 +166,13 @@ class ProjectService extends ProjectHelper {
             const pid: string = req.params.id.replace("\n", "");
             const uid = req.body.user._id;
 
+            
             const sh = await Share.find({ project: pid }, { _id: 0, project: 0, created_at: 0 });
-
+            
             const l = sh.filter(e => {
                 return e.shared_with.toString() === uid.toString()
             }).length > 0;
-
+            
             const body = {
                 ...req.body.data,
                 title: req.body.data.title.toUpperCase(),
